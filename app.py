@@ -1,8 +1,19 @@
 import streamlit as st
 import base64
 
-import streamlit as st
-
+# --- Full screen CSS ---
+st.markdown(
+    """
+    <style>
+    /* Contenedor principal ocupa todo el ancho */
+    .block-container {
+        padding: 0rem;
+        margin: 0;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 #---
 
@@ -66,6 +77,24 @@ st.title("Flores Amarillas 💛")
 # --- Preguntas ---
 if q["type"] == "info":
     st.info(q["text"])
+    
+    # --- Imagen local para la primera pregunta ---
+    try:
+        with open("01dd511d5cebc91e191a9b540812813a.jpg", "rb") as f:
+            img_bytes = f.read()
+        img_b64 = base64.b64encode(img_bytes).decode()
+
+        st.markdown(f"""
+            <div style="text-align:center; margin-top:20px; margin-bottom:20px;">
+                <img src="data:image/jpeg;base64,{img_b64}" 
+                     alt="Imagen Michelle" 
+                     style="width:300px; border-radius:15px; box-shadow:0 4px 8px rgba(0,0,0,0.2);">
+            </div>
+        """, unsafe_allow_html=True)
+
+    except Exception as e:
+        st.warning("No se pudo cargar la imagen de Michelle.")
+
     if st.button("Siguiente"):
         change_idx(1)
 
@@ -155,3 +184,4 @@ elif q["type"] == "final":
 
     if st.button("Reiniciar"):
         reset_all()
+
