@@ -63,7 +63,8 @@ if q["type"] == "info":
         change_idx(1)
 
 elif q["type"] == "radio":
-    answer = st.radio(q["text"], q["options"], key=f"radio_{q['id']}")
+    answer = st.radio(q["text"], q["options"], key=q["id"])
+    # Mostrar la respuesta personalizada en tiempo real al seleccionar opción
     response = q["responses"].get(answer, "")
     if response:
         st.success(response)
@@ -72,7 +73,7 @@ elif q["type"] == "radio":
         change_idx(1)
 
 elif q["type"] == "text":
-    answer = st.text_input(q["text"], key=f"text_{q['id']}")
+    answer = st.text_input(q["text"], key=q["id"])
     if st.button("Siguiente"):
         if answer.strip().lower() == REQUIRED_NAME:
             st.session_state.answers[q["id"]] = answer.strip()
@@ -83,7 +84,8 @@ elif q["type"] == "text":
         st.error("¡Debes escribir el nombre correcto (hojin)!")
 
 elif q["type"] == "select":
-    answer = st.selectbox(q["text"], q["options"], key=f"select_{q['id']}")
+    answer = st.selectbox(q["text"], q["options"], key=q["id"])
+    # Mostrar la respuesta personalizada en tiempo real al seleccionar opción
     response = q["responses"].get(answer, "")
     if response:
         st.success(response)
@@ -107,6 +109,5 @@ elif q["type"] == "final":
         """, unsafe_allow_html=True)
     except Exception as e:
         st.warning("No se pudo cargar la imagen de flores amarillas.")
-
     if st.button("Reiniciar"):
         reset_all()
