@@ -2,7 +2,7 @@ import streamlit as st
 import base64
 
 # --- CONFIG ---
-REQUIRED_NAME = "michelle"
+REQUIRED_NAME = "hojin"
 QUESTIONS = [
     {"id": "q1", "type": "info", "text": "Hola, gracias por quererme tanto. Pulsa siguiente para continuar."},
     {"id": "q2", "type": "radio", "text": "¿Me quieres?", "options": ["Sí", "No"]},
@@ -14,6 +14,14 @@ QUESTIONS = [
     {"id": "q5", "type": "final", "text": "Listo: entrega virtual de flores amarillas para michelle"}
 ]
 
+# Respuestas personalizadas para la pregunta select
+PERSONALIZED_RESPONSES = {
+    "mi forma de ser": "te amo mucho michelle, ya sabia que me amabas por como soy",
+    "mi pene": "ay mi cochinita, ya sabia que te gustaba esta, es toda tuya.",
+    "mi cara": "te gusto nomas por mi cara entonces?, ok.",
+    "otro": "no pues, otro que esperabas."
+}
+
 # --- Helpers ---
 def init_state():
     if "idx" not in st.session_state:
@@ -22,10 +30,13 @@ def init_state():
         st.session_state.answers = {}
     if "error_name" not in st.session_state:
         st.session_state.error_name = False
+    if "select_response" not in st.session_state:
+        st.session_state.select_response = ""
 
 def change_idx(delta: int):
     st.session_state.idx = max(0, min(st.session_state.idx + delta, len(QUESTIONS)-1))
     st.session_state.error_name = False
+    st.session_state.select_response = ""
 
 def reset_all():
     st.session_state.clear()
@@ -57,6 +68,7 @@ elif q["type"] == "radio":
 
 elif q["type"] == "text":
     answer = st.text_input(q["text"], key=q["id"])
+    # El botón "Siguiente" registra el nombre sin necesidad de presionar enter.
     if st.button("Siguiente"):
         if answer.strip().lower() == REQUIRED_NAME:
             st.session_state.answers[q["id"]] = answer.strip()
@@ -64,22 +76,18 @@ elif q["type"] == "text":
         else:
             st.session_state.error_name = True
     if st.session_state.error_name:
-        st.error("¡Debes escribir el nombre correcto (michelle)!")
+        st.error("¡Debes escribir el nombre correcto (hojin)!")
 
 elif q["type"] == "select":
     answer = st.selectbox(q["text"], q["options"], key=q["id"])
+    # Al dar click en "Siguiente", muestra la respuesta personalizada abajo
     if st.button("Siguiente"):
         st.session_state.answers[q["id"]] = answer
+        st.session_state.select_response = PERSONALIZED_RESPONSES.get(answer, "")
         change_idx(1)
-        # Mostramos mensaje personalizado según opción
-        if answer == "mi forma de ser":
-            st.success("¡Aww, tu forma de ser es especial para mí también!")
-        elif answer == "mi pene":
-            st.success("😏 Jajaja, eres traviesa, pero me gusta tu sinceridad.")
-        elif answer == "mi cara":
-            st.success("¡Me alegra que te guste mi cara! 😊")
-        elif answer == "otro":
-            st.success("¡Me gustaría saber qué es ese 'otro' que te gusta de mí!")
+    # Si ya hay una respuesta personalizada, la mostramos
+    if st.session_state.select_response:
+        st.success(st.session_state.select_response)
 
 elif q["type"] == "final":
     st.success(q["text"])
