@@ -3,7 +3,7 @@ import base64
 
 REQUIRED_NAME = "hojin"
 QUESTIONS = [
-    {"id": "q1", "type": "info", "text": "Hola, gracias por quererme tanto. Pulsa siguiente para continuar."},
+    {"id": "q1", "type": "info", "text": "Hola, gracias por quererme tanto michelle, no tengo plata para poder comprarte un ramo de flores amarillas tangibles, pero no significa que no te ame. Pulsa siguiente para continuar."},
     {
         "id": "q2",
         "type": "radio",
@@ -18,7 +18,7 @@ QUESTIONS = [
     {
         "id": "q4",
         "type": "select",
-        "text": "¿Cuál de estas cosas te gusta más de mí?",
+        "text": "¿Qué te gusta más de mí?",
         "options": ["mi forma de ser", "mi pene", "mi cara", "otro"],
         "responses": {
             "mi forma de ser": "te amo mucho michelle, ya sabia que me amabas por como soy",
@@ -65,24 +65,30 @@ if q["type"] == "info":
         change_idx(1)
 
 elif q["type"] == "radio":
-    if q["id"] not in st.session_state:
-        st.session_state[q["id"]] = None
-
-    st.session_state[q["id"]] = st.radio(
+    temp_key = f"temp_{q['id']}"
+    confirm_key = f"confirm_{q['id']}"
+    if temp_key not in st.session_state:
+        st.session_state[temp_key] = None
+    if confirm_key not in st.session_state:
+        st.session_state[confirm_key] = False
+    selected = st.radio(
         q["text"],
         q["options"],
-        index=0 if st.session_state[q["id"]] is None else q["options"].index(st.session_state[q["id"]])
+        index=0 if st.session_state[temp_key] is None else q["options"].index(st.session_state[temp_key])
     )
-    
-    # Mostrar la respuesta seleccionada
-    if st.session_state[q["id"]] is not None:
-        response = q["responses"].get(st.session_state[q["id"]], "")
+    st.session_state[temp_key] = selected
+    if not st.session_state[confirm_key]:
+        if st.button("Confirmar") and selected is not None:
+            st.session_state[q["id"]] = selected
+            st.session_state.answers[q["id"]] = selected
+            st.session_state[confirm_key] = True
+    if st.session_state[confirm_key]:
+        response = q["responses"].get(selected, "")
         if response:
             st.success(response)
-    
-    if st.button("Siguiente"):
-        st.session_state.answers[q["id"]] = st.session_state[q["id"]]
-        change_idx(1)
+        if st.button("Siguiente"):
+            st.session_state[confirm_key] = False
+            change_idx(1)
 
 elif q["type"] == "text":
     if q["id"] not in st.session_state:
@@ -101,24 +107,30 @@ elif q["type"] == "text":
         st.error(f"¡Debes escribir el nombre correcto ({REQUIRED_NAME})!")
 
 elif q["type"] == "select":
-    if q["id"] not in st.session_state:
-        st.session_state[q["id"]] = None
-
-    st.session_state[q["id"]] = st.selectbox(
+    temp_key = f"temp_{q['id']}"
+    confirm_key = f"confirm_{q['id']}"
+    if temp_key not in st.session_state:
+        st.session_state[temp_key] = None
+    if confirm_key not in st.session_state:
+        st.session_state[confirm_key] = False
+    selected = st.selectbox(
         q["text"],
         q["options"],
-        index=0 if st.session_state[q["id"]] is None else q["options"].index(st.session_state[q["id"]])
+        index=0 if st.session_state[temp_key] is None else q["options"].index(st.session_state[temp_key])
     )
-    
-    # Mostrar la respuesta seleccionada
-    if st.session_state[q["id"]] is not None:
-        response = q["responses"].get(st.session_state[q["id"]], "")
+    st.session_state[temp_key] = selected
+    if not st.session_state[confirm_key]:
+        if st.button("Confirmar") and selected is not None:
+            st.session_state[q["id"]] = selected
+            st.session_state.answers[q["id"]] = selected
+            st.session_state[confirm_key] = True
+    if st.session_state[confirm_key]:
+        response = q["responses"].get(selected, "")
         if response:
             st.success(response)
-    
-    if st.button("Siguiente"):
-        st.session_state.answers[q["id"]] = st.session_state[q["id"]]
-        change_idx(1)
+        if st.button("Siguiente"):
+            st.session_state[confirm_key] = False
+            change_idx(1)
 
 elif q["type"] == "final":
     st.success(q["text"])
