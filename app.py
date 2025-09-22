@@ -1,19 +1,6 @@
 import streamlit as st
 import base64
 
-# --- Full screen CSS ---
-st.markdown(
-    """
-    <style>
-    /* Contenedor principal ocupa todo el ancho */
-    .block-container {
-        padding: 0rem;
-        margin: 0;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
 #---
 
