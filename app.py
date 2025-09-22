@@ -4,21 +4,31 @@ import base64
 REQUIRED_NAME = "hojin"
 QUESTIONS = [
     {"id": "q1", "type": "info", "text": "Hola, gracias por quererme tanto. Pulsa siguiente para continuar."},
-    {"id": "q2", "type": "radio", "text": "¿Me quieres?", "options": ["Sí", "No"]},
+    {
+        "id": "q2",
+        "type": "radio",
+        "text": "¿Me quieres?",
+        "options": ["Sí", "No"],
+        "responses": {
+            "Sí": "yo te quiero mas mi amor preciosa.",
+            "No": "fuck you nigga bitch nigga nigga nigga nigga"
+        }
+    },
     {"id": "q3", "type": "text", "text": "Escribe el nombre de la persona que amas:"},
     {
-        "id": "q4", "type": "select", "text": "¿Cuál de estas cosas te gusta más de mí?",
-        "options": ["mi forma de ser", "mi pene", "mi cara", "otro"]
+        "id": "q4",
+        "type": "select",
+        "text": "¿Cuál de estas cosas te gusta más de mí?",
+        "options": ["mi forma de ser", "mi pene", "mi cara", "otro"],
+        "responses": {
+            "mi forma de ser": "te amo mucho michelle, ya sabia que me amabas por como soy",
+            "mi pene": "ay mi cochinita, ya sabia que te gustaba esta, es toda tuya.",
+            "mi cara": "te gusto nomas por mi cara entonces?, ok.",
+            "otro": "no pues, otro que esperabas."
+        }
     },
     {"id": "q5", "type": "final", "text": "Listo: entrega virtual de flores amarillas para michelle"}
 ]
-
-PERSONALIZED_RESPONSES = {
-    "mi forma de ser": "te amo mucho michelle, ya sabia que me amabas por como soy",
-    "mi pene": "ay mi cochinita, ya sabia que te gustaba esta, es toda tuya.",
-    "mi cara": "te gusto nomas por mi cara entonces?, ok.",
-    "otro": "no pues, otro que esperabas."
-}
 
 def init_state():
     if "idx" not in st.session_state:
@@ -27,13 +37,10 @@ def init_state():
         st.session_state.answers = {}
     if "error_name" not in st.session_state:
         st.session_state.error_name = False
-    if "show_select_response" not in st.session_state:
-        st.session_state.show_select_response = False
 
 def change_idx(delta: int):
     st.session_state.idx = max(0, min(st.session_state.idx + delta, len(QUESTIONS)-1))
     st.session_state.error_name = False
-    st.session_state.show_select_response = False
 
 def reset_all():
     st.session_state.clear()
@@ -56,13 +63,16 @@ if q["type"] == "info":
         change_idx(1)
 
 elif q["type"] == "radio":
-    answer = st.radio(q["text"], q["options"], key=q["id"])
+    answer = st.radio(q["text"], q["options"], key=f"radio_{q['id']}")
+    response = q["responses"].get(answer, "")
+    if response:
+        st.success(response)
     if st.button("Siguiente"):
         st.session_state.answers[q["id"]] = answer
         change_idx(1)
 
 elif q["type"] == "text":
-    answer = st.text_input(q["text"], key=q["id"])
+    answer = st.text_input(q["text"], key=f"text_{q['id']}")
     if st.button("Siguiente"):
         if answer.strip().lower() == REQUIRED_NAME:
             st.session_state.answers[q["id"]] = answer.strip()
@@ -73,17 +83,13 @@ elif q["type"] == "text":
         st.error("¡Debes escribir el nombre correcto (hojin)!")
 
 elif q["type"] == "select":
-    answer = st.selectbox(q["text"], q["options"], key=q["id"])
-    # Solo avanza si se muestra la respuesta personalizada primero
-    if not st.session_state.show_select_response:
-        if st.button("Siguiente"):
-            st.session_state.answers[q["id"]] = answer
-            st.session_state.show_select_response = True
-            st.session_state.select_response = PERSONALIZED_RESPONSES.get(answer, "")
-    else:
-        st.success(st.session_state.select_response)
-        if st.button("Continuar"):
-            change_idx(1)
+    answer = st.selectbox(q["text"], q["options"], key=f"select_{q['id']}")
+    response = q["responses"].get(answer, "")
+    if response:
+        st.success(response)
+    if st.button("Siguiente"):
+        st.session_state.answers[q["id"]] = answer
+        change_idx(1)
 
 elif q["type"] == "final":
     st.success(q["text"])
