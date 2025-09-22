@@ -1,6 +1,20 @@
 import streamlit as st
 import base64
 
+st.markdown(
+    """
+    <style>
+    /* Quitar padding y márgenes */
+    .block-container {
+        padding: 0rem;
+        margin: 0;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+#---
 
 REQUIRED_NAME = "hojin"
 QUESTIONS = [
