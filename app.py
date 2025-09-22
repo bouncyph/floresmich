@@ -1,6 +1,9 @@
 import streamlit as st
 import base64
 
+streamlit run app.py --server.headless true --browser.gatherUsageStats false --server.enableCORS false
+
+
 REQUIRED_NAME = "hojin"
 QUESTIONS = [
     {"id": "q1", "type": "info", "text": "Hola, gracias por quererme tanto michelle, no tengo plata para poder comprarte un ramo de flores amarillas tangibles, pero no significa que no te ame. Pulsa siguiente para continuar."},
