@@ -3,19 +3,6 @@ import base64
 
 import streamlit as st
 
-# Quitar padding/márgenes y usar toda la pantalla
-st.markdown(
-    """
-    <style>
-    /* Contenedor principal ocupa todo el ancho */
-    .block-container {
-        padding: 0rem;
-        margin: 0;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
 #---
 
