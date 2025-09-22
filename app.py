@@ -1,8 +1,6 @@
 import streamlit as st
 import base64
 
-streamlit run app.py --server.headless true --browser.gatherUsageStats false --server.enableCORS false
-
 
 REQUIRED_NAME = "hojin"
 QUESTIONS = [
