@@ -1,7 +1,6 @@
 import streamlit as st
 import base64
 
-# --- CONFIG ---
 REQUIRED_NAME = "hojin"
 QUESTIONS = [
     {"id": "q1", "type": "info", "text": "Hola, gracias por quererme tanto. Pulsa siguiente para continuar."},
@@ -14,7 +13,6 @@ QUESTIONS = [
     {"id": "q5", "type": "final", "text": "Listo: entrega virtual de flores amarillas para michelle"}
 ]
 
-# Respuestas personalizadas para la pregunta select
 PERSONALIZED_RESPONSES = {
     "mi forma de ser": "te amo mucho michelle, ya sabia que me amabas por como soy",
     "mi pene": "ay mi cochinita, ya sabia que te gustaba esta, es toda tuya.",
@@ -22,7 +20,6 @@ PERSONALIZED_RESPONSES = {
     "otro": "no pues, otro que esperabas."
 }
 
-# --- Helpers ---
 def init_state():
     if "idx" not in st.session_state:
         st.session_state.idx = 0
@@ -30,13 +27,13 @@ def init_state():
         st.session_state.answers = {}
     if "error_name" not in st.session_state:
         st.session_state.error_name = False
-    if "select_response" not in st.session_state:
-        st.session_state.select_response = ""
+    if "show_select_response" not in st.session_state:
+        st.session_state.show_select_response = False
 
 def change_idx(delta: int):
     st.session_state.idx = max(0, min(st.session_state.idx + delta, len(QUESTIONS)-1))
     st.session_state.error_name = False
-    st.session_state.select_response = ""
+    st.session_state.show_select_response = False
 
 def reset_all():
     st.session_state.clear()
@@ -47,10 +44,8 @@ def render_progress():
     st.progress(pct)
     st.caption(f"Progreso: {pct}%")
 
-# --- App ---
 init_state()
 render_progress()
-
 q = QUESTIONS[st.session_state.idx]
 
 st.title("Flores Amarillas 💛")
@@ -68,7 +63,6 @@ elif q["type"] == "radio":
 
 elif q["type"] == "text":
     answer = st.text_input(q["text"], key=q["id"])
-    # El botón "Siguiente" registra el nombre sin necesidad de presionar enter.
     if st.button("Siguiente"):
         if answer.strip().lower() == REQUIRED_NAME:
             st.session_state.answers[q["id"]] = answer.strip()
@@ -80,14 +74,16 @@ elif q["type"] == "text":
 
 elif q["type"] == "select":
     answer = st.selectbox(q["text"], q["options"], key=q["id"])
-    # Al dar click en "Siguiente", muestra la respuesta personalizada abajo
-    if st.button("Siguiente"):
-        st.session_state.answers[q["id"]] = answer
-        st.session_state.select_response = PERSONALIZED_RESPONSES.get(answer, "")
-        change_idx(1)
-    # Si ya hay una respuesta personalizada, la mostramos
-    if st.session_state.select_response:
+    # Solo avanza si se muestra la respuesta personalizada primero
+    if not st.session_state.show_select_response:
+        if st.button("Siguiente"):
+            st.session_state.answers[q["id"]] = answer
+            st.session_state.show_select_response = True
+            st.session_state.select_response = PERSONALIZED_RESPONSES.get(answer, "")
+    else:
         st.success(st.session_state.select_response)
+        if st.button("Continuar"):
+            change_idx(1)
 
 elif q["type"] == "final":
     st.success(q["text"])
