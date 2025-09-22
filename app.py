@@ -30,6 +30,7 @@ QUESTIONS = [
     {"id": "q5", "type": "final", "text": "Listo: entrega virtual de flores amarillas para michelle"}
 ]
 
+# --- Inicializar session_state ---
 def init_state():
     if "idx" not in st.session_state:
         st.session_state.idx = 0
@@ -57,45 +58,70 @@ q = QUESTIONS[st.session_state.idx]
 
 st.title("Flores Amarillas 💛")
 
+# --- Preguntas ---
 if q["type"] == "info":
     st.info(q["text"])
     if st.button("Siguiente"):
         change_idx(1)
 
 elif q["type"] == "radio":
-    answer = st.radio(q["text"], q["options"], key=q["id"])
-    # Mostrar la respuesta personalizada en tiempo real al seleccionar opción
-    response = q["responses"].get(answer, "")
-    if response:
-        st.success(response)
+    if q["id"] not in st.session_state:
+        st.session_state[q["id"]] = None
+
+    st.session_state[q["id"]] = st.radio(
+        q["text"],
+        q["options"],
+        index=0 if st.session_state[q["id"]] is None else q["options"].index(st.session_state[q["id"]])
+    )
+    
+    # Mostrar la respuesta seleccionada
+    if st.session_state[q["id"]] is not None:
+        response = q["responses"].get(st.session_state[q["id"]], "")
+        if response:
+            st.success(response)
+    
     if st.button("Siguiente"):
-        st.session_state.answers[q["id"]] = answer
+        st.session_state.answers[q["id"]] = st.session_state[q["id"]]
         change_idx(1)
 
 elif q["type"] == "text":
-    answer = st.text_input(q["text"], key=q["id"])
+    if q["id"] not in st.session_state:
+        st.session_state[q["id"]] = ""
+
+    st.session_state[q["id"]] = st.text_input(q["text"], value=st.session_state[q["id"]])
+    
     if st.button("Siguiente"):
-        if answer.strip().lower() == REQUIRED_NAME:
-            st.session_state.answers[q["id"]] = answer.strip()
+        if st.session_state[q["id"]].strip().lower() == REQUIRED_NAME:
+            st.session_state.answers[q["id"]] = st.session_state[q["id"]].strip()
             change_idx(1)
         else:
             st.session_state.error_name = True
+    
     if st.session_state.error_name:
-        st.error("¡Debes escribir el nombre correcto (hojin)!")
+        st.error(f"¡Debes escribir el nombre correcto ({REQUIRED_NAME})!")
 
 elif q["type"] == "select":
-    answer = st.selectbox(q["text"], q["options"], key=q["id"])
-    # Mostrar la respuesta personalizada en tiempo real al seleccionar opción
-    response = q["responses"].get(answer, "")
-    if response:
-        st.success(response)
+    if q["id"] not in st.session_state:
+        st.session_state[q["id"]] = None
+
+    st.session_state[q["id"]] = st.selectbox(
+        q["text"],
+        q["options"],
+        index=0 if st.session_state[q["id"]] is None else q["options"].index(st.session_state[q["id"]])
+    )
+    
+    # Mostrar la respuesta seleccionada
+    if st.session_state[q["id"]] is not None:
+        response = q["responses"].get(st.session_state[q["id"]], "")
+        if response:
+            st.success(response)
+    
     if st.button("Siguiente"):
-        st.session_state.answers[q["id"]] = answer
+        st.session_state.answers[q["id"]] = st.session_state[q["id"]]
         change_idx(1)
 
 elif q["type"] == "final":
     st.success(q["text"])
-    # Mostrar imagen si existe en la raíz
     try:
         with open("0990ee99212269f82854ed4a978ece63.jpg", "rb") as f:
             img_bytes = f.read()
@@ -109,5 +135,6 @@ elif q["type"] == "final":
         """, unsafe_allow_html=True)
     except Exception as e:
         st.warning("No se pudo cargar la imagen de flores amarillas.")
+
     if st.button("Reiniciar"):
         reset_all()
